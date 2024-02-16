@@ -1,4 +1,4 @@
-# Proyecto Integrador Final
+# Sistema de Gestión de Compras
 
 Desarrollo de un **Sistema de Gestión de Compras** para manejar información de Proveedores, Productos y Órdenes de Compra.
 
