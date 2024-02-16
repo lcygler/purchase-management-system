@@ -1,0 +1,9 @@
+.custom-btn-fill {
+  background-color: #393e46;
+  color: white;
+}
+
+.custom-btn-fill:hover {
+  background-color: #494e56;
+  color: white;
+}

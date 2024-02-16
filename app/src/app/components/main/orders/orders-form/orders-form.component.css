@@ -1,0 +1,23 @@
+.order-in-progress {
+  color: #6c757d;
+}
+
+.order-on-its-way {
+  color: #0d6efd;
+}
+
+.order-delivered {
+  color: #198754;
+}
+
+.order-cancelled {
+  color: #dc3545;
+}
+
+/* .image-zoom {
+  transition: transform 0.2s ease-in-out;
+} */
+
+/* .image-zoom:hover {
+  transform: scale(1.1);
+} */

@@ -1,0 +1,21 @@
+meta {
+  name: Update Supplier
+  type: http
+  seq: 8
+}
+
+put {
+  url: http://localhost:8080/suppliers/1
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "isDeleted": false
+  }
+}

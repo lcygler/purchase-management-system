@@ -1,0 +1,208 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+  <div class="container-fluid mx-2">
+    <a class="navbar-brand">
+      <img
+        src="../../../assets/img/logo/logo.png"
+        alt="Logo"
+        style="max-height: 35px"
+      />
+    </a>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+      *ngIf="isAuthenticated()"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div
+      class="collapse navbar-collapse"
+      id="navbarSupportedContent"
+      *ngIf="isAuthenticated()"
+    >
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <!-- Home -->
+        <li class="nav-item me-2">
+          <a
+            class="nav-link d-flex align-items-center hover-effect"
+            aria-current="page"
+            routerLink="/home"
+            [ngClass]="{ 'active active-link': isCurrentRoute('/home') }"
+          >
+            <fa-icon [icon]="faHouse" style="margin-right: 10px"></fa-icon>
+            Inicio
+          </a>
+        </li>
+
+        <!-- Suppliers -->
+        <li class="nav-item me-2">
+          <a
+            class="nav-link d-flex align-items-center hover-effect"
+            routerLink="/suppliers"
+            [ngClass]="{ 'active active-link': isCurrentRoute('/suppliers') }"
+          >
+            <fa-icon [icon]="faUsers" style="margin-right: 10px"></fa-icon>
+            Proveedores
+          </a>
+        </li>
+
+        <!-- Products -->
+        <li class="nav-item me-2">
+          <a
+            class="nav-link d-flex align-items-center hover-effect"
+            routerLink="/products"
+            [ngClass]="{ 'active active-link': isCurrentRoute('/products') }"
+          >
+            <fa-icon [icon]="faTags" style="margin-right: 10px"></fa-icon>
+            Productos
+          </a>
+        </li>
+
+        <!-- Orders -->
+        <li class="nav-item me-2">
+          <a
+            class="nav-link d-flex align-items-center hover-effect"
+            routerLink="/orders"
+            [ngClass]="{ 'active active-link': isCurrentRoute('/orders') }"
+          >
+            <fa-icon [icon]="faFileLines" style="margin-right: 10px"></fa-icon>
+            Ordenes
+          </a>
+        </li>
+
+        <!-- Management -->
+        <li class="nav-item me-2">
+          <div class="dropdown">
+            <button
+              class="btn dropdown-toggle custom-dropdown"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              [ngClass]="{ 'active active-link': isRouteActive('/management') }"
+            >
+              <fa-icon [icon]="faGear" style="margin-right: 5px"></fa-icon>
+              Gestión
+            </button>
+            <ul
+              class="dropdown-menu dropdown-menu-end"
+              style="padding-left: 5px"
+            >
+              <li>
+                <a
+                  class="nav-link d-flex align-items-center hover-effect"
+                  routerLink="/management/categories"
+                >
+                  <fa-icon
+                    [icon]="faBoxArchive"
+                    style="margin-right: 10px"
+                  ></fa-icon>
+                  Categorías
+                </a>
+              </li>
+              <li>
+                <a
+                  class="nav-link d-flex align-items-center hover-effect"
+                  routerLink="/management/industries"
+                >
+                  <fa-icon
+                    [icon]="faStore"
+                    style="margin-right: 10px"
+                  ></fa-icon>
+                  Rubros
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <!-- Login -->
+        <li class="nav-item">
+          <div class="dropdown">
+            <button
+              class="btn dropdown-toggle custom-dropdown"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <fa-icon [icon]="faUser" style="margin-right: 5px"></fa-icon>
+              Perfil
+            </button>
+            <ul
+              class="dropdown-menu dropdown-menu-end"
+              style="padding-left: 5px; width: 205px"
+            >
+              <li>
+                <a
+                  class="nav-link btn d-flex align-items-center hover-effect"
+                  routerLink="/login/pass"
+                >
+                  <fa-icon [icon]="faKey" style="margin-right: 10px"></fa-icon>
+                  Cambiar contraseña
+                </a>
+              </li>
+              <li>
+                <a
+                  class="nav-link btn d-flex align-items-center hover-effect"
+                  (click)="confirmLogout()"
+                  data-bs-toggle="modal"
+                  data-bs-target="#logoutModal"
+                >
+                  <fa-icon
+                    [icon]="faRightToBracket"
+                    style="margin-right: 10px"
+                  ></fa-icon>
+                  Cerrar sesión
+                </a>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Logout Modal -->
+<div
+  class="modal fade"
+  id="logoutModal"
+  tabindex="-1"
+  aria-labelledby="logoutModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="logoutModalLabel">Cerrar sesión</h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body" [innerHTML]="logoutMessage"></div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          data-bs-dismiss="modal"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-danger"
+          data-bs-dismiss="modal"
+          (click)="logout()"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

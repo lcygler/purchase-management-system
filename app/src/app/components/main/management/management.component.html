@@ -1,0 +1,770 @@
+<div class="container m-4" style="width: 100vw">
+  <!-- Breadcrumbs -->
+  <div class="row">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <!-- Home -->
+        <li class="breadcrumb-item"><a routerLink="/home">Inicio</a></li>
+
+        <!-- Management -->
+        <li
+          class="breadcrumb-item active"
+          aria-current="page"
+          *ngIf="!isCategoryRoute() && !isIndustryRoute()"
+        >
+          Gestión
+        </li>
+        <li
+          class="breadcrumb-item"
+          *ngIf="isCategoryRoute() || isIndustryRoute()"
+        >
+          <a routerLink="/management">Gestión</a>
+        </li>
+
+        <!-- List -->
+        <li
+          class="breadcrumb-item"
+          *ngIf="isCategoryRoute() && !isCategoryEdit"
+          [ngClass]="{ active: isCategoryRoute() }"
+        >
+          Categorías
+        </li>
+        <li
+          class="breadcrumb-item"
+          *ngIf="isIndustryRoute() && !isIndustryEdit"
+          [ngClass]="{ active: isIndustryRoute() }"
+        >
+          Rubros
+        </li>
+
+        <!-- Edit -->
+        <li class="breadcrumb-item" *ngIf="isCategoryEdit">
+          <a routerLink="/management/categories">Categorías</a>
+        </li>
+        <li class="breadcrumb-item" *ngIf="isIndustryEdit">
+          <a routerLink="/management/industries">Rubros</a>
+        </li>
+        <li
+          class="breadcrumb-item active"
+          aria-current="page"
+          *ngIf="isCategoryEdit || isIndustryEdit"
+        >
+          {{ breadcrumb }}
+        </li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Nav Tabs -->
+  <div class="container mt-3 d-none" style="width: 60%">
+    <div class="row">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            aria-current="page"
+            routerLink="/management/categories"
+            [ngClass]="{ active: isCategoryRoute() }"
+            >Categorías</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/management/industries"
+            [ngClass]="{ active: isIndustryRoute() }"
+            >Rubros</a
+          >
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container mt-3" style="width: 100%">
+    <div class="row d-flex justify-content-center">
+      <!-- Categorías -->
+      <div class="col-md-6" *ngIf="isCategoryRoute()">
+        <!-- Title -->
+        <div class="row">
+          <h2 class="mb-4">Categorías</h2>
+        </div>
+
+        <!-- Form -->
+        <div class="row mb-2">
+          <form
+            #CategoryForm="ngForm"
+            (ngSubmit)="onCategorySubmit(CategoryForm)"
+          >
+            <div class="row">
+              <fieldset>
+                <!-- Nombre -->
+                <div class="col-md">
+                  <div class="mb-3">
+                    <label for="category-name" class="form-label">
+                      {{
+                        isCategoryEdit
+                          ? "Editar categoría:"
+                          : "Agregar categoría:"
+                      }}
+                    </label>
+                    <div class="d-flex align-items-center">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="category-name"
+                        name="categoryName"
+                        placeholder="Ingrese una categoría"
+                        [ngClass]="{
+                        'is-invalid': categoryName.touched && (categoryName.errors || !isCategoryValid()),
+                        'is-valid': categoryName.touched && !categoryName.errors && category.name,
+                      }"
+                        [(ngModel)]="category.name"
+                        #categoryName="ngModel"
+                        minlength="4"
+                        maxlength="255"
+                      />
+                      <!-- Cancelar -->
+                      <button
+                        type="button"
+                        class="btn btn-outline-secondary ms-2 d-flex align-items-center justify-content-center"
+                        (click)="navigateToCategories()"
+                        *ngIf="isCategoryEdit"
+                      >
+                        <span>Cancelar</span>
+                      </button>
+                      <!-- Agregar/Guardar -->
+                      <button
+                        type="submit"
+                        class="btn btn-success ms-2 d-flex align-items-center justify-content-center"
+                        [disabled]="
+                          !category.name ||
+                          !isCategoryValid() ||
+                          categoryName.errors
+                        "
+                      >
+                        <span>{{
+                          isCategoryEdit ? "Guardar" : "Agregar"
+                        }}</span>
+                      </button>
+                    </div>
+                    <div
+                      *ngIf="categoryName.touched && !isCategoryValid()"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >La categoría ya está en uso</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="categoryName.touched && categoryName.errors?.['minlength']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >La categoría debe tener al menos 4 caracteres</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="categoryName.touched && categoryName.errors?.['maxlength']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >La categoría no debe superar los 50 caracteres</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </form>
+        </div>
+
+        <!-- Loader -->
+        <div
+          class="d-flex justify-content-center align-items-center"
+          style="height: 40vh"
+          *ngIf="isLoadingCategories"
+        >
+          <span class="loader"></span>
+        </div>
+
+        <!-- Tabla -->
+        <div class="row" *ngIf="!isLoadingCategories">
+          <table
+            class="table table-bordered table-hover text-center align-middle"
+          >
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th class="position-relative">
+                  <div class="d-flex justify-content-center align-items-center">
+                    Nombre
+                    <div class="position-absolute" style="right: 10px">
+                      <button
+                        class="btn btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center custom-dark"
+                        style="width: 25px; height: 25px"
+                        (click)="updateCategorySort()"
+                      >
+                        <span
+                          class="material-icons"
+                          style="font-size: 16px"
+                          *ngIf="categorySort === 'Default'"
+                        >
+                          sort
+                        </span>
+                        <span
+                          class="material-icons"
+                          style="font-size: 16px"
+                          *ngIf="categorySort === 'Ascending'"
+                        >
+                          keyboard_arrow_up
+                        </span>
+                        <span
+                          class="material-icons"
+                          style="font-size: 16px"
+                          *ngIf="categorySort === 'Descending'"
+                        >
+                          keyboard_arrow_down
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </th>
+                <th>Estado</th>
+                <th>
+                  <div class="d-flex justify-content-center align-items-center">
+                    <span class="material-icons-outlined"> more_horiz </span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let category of categoryList
+                    | deleteFilter : deleteCategoryFilter
+                    | nameSort : categorySort
+                "
+              >
+                <td>{{ category.id }}</td>
+                <td>{{ category.name }}</td>
+                <td>{{ category.isDeleted ? "Inactivo" : "Activo" }}</td>
+                <td>
+                  <!-- Actions -->
+                  <div class="btn-group">
+                    <!-- Editar -->
+                    <button
+                      class="btn btn-outline-secondary custom-dark"
+                      (click)="editCategory(category.id!)"
+                      *ngIf="!category.isDeleted"
+                    >
+                      <span class="material-icons" style="font-size: 16px"
+                        >edit</span
+                      >
+                    </button>
+
+                    <!-- Borrar -->
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger"
+                      (click)="
+                        confirmDeleteCategory(category.id!, category.name)
+                      "
+                      data-bs-toggle="modal"
+                      data-bs-target="#deleteCategoryModal"
+                      *ngIf="!category.isDeleted"
+                    >
+                      <span class="material-icons" style="font-size: 16px">
+                        delete
+                      </span>
+                    </button>
+
+                    <!-- Restaurar -->
+                    <button
+                      type="button"
+                      class="btn btn-outline-success"
+                      (click)="
+                        confirmRestoreCategory(category.id!, category.name)
+                      "
+                      data-bs-toggle="modal"
+                      data-bs-target="#restoreCategoryModal"
+                      *ngIf="category.isDeleted"
+                    >
+                      <span class="material-icons" style="font-size: 16px">
+                        undo
+                      </span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot *ngIf="hasDeletedCategories()">
+              <tr style="border: none">
+                <td
+                  colspan="12"
+                  class="text-muted text-center small"
+                  style="border: none"
+                >
+                  <div class="d-flex justify-content-center position-relative">
+                    <!-- Checkbox -->
+                    <div
+                      class="form-check position-absolute"
+                      style="right: 10px"
+                      [ngClass]="
+                        !hasDeletedCategories() ? 'd-none' : 'd-inline'
+                      "
+                    >
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value=""
+                        id="flexCheckDefault1"
+                        [(ngModel)]="deleteCategoryFilter"
+                        (change)="onCategoryCheckboxChange($event)"
+                      />
+                      <label class="form-check-label" for="flexCheckDefault1">
+                        Ver categorías eliminadas
+                      </label>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Rubros -->
+      <div class="col-md-6" *ngIf="isIndustryRoute()">
+        <!-- Title -->
+        <div class="row">
+          <h2 class="mb-4">Rubros</h2>
+        </div>
+
+        <!-- Form -->
+        <div class="row mb-2">
+          <form
+            #IndustryForm="ngForm"
+            (ngSubmit)="onIndustrySubmit(IndustryForm)"
+          >
+            <div class="row">
+              <fieldset>
+                <!-- Nombre -->
+                <div class="col-md">
+                  <div class="mb-3">
+                    <label for="industry-name" class="form-label">
+                      {{ isIndustryEdit ? "Editar rubro:" : "Agregar rubro:" }}
+                    </label>
+                    <div class="d-flex align-items-center">
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="industry-name"
+                        name="industryName"
+                        placeholder="Ingrese un rubro"
+                        [ngClass]="{
+                        'is-invalid': industryName.touched && (industryName.errors || !isIndustryValid()),
+                        'is-valid': industryName.touched && !industryName.errors && industry.name,
+                      }"
+                        [(ngModel)]="industry.name"
+                        #industryName="ngModel"
+                        minlength="4"
+                        maxlength="255"
+                      />
+                      <!-- Cancelar -->
+                      <button
+                        type="button"
+                        class="btn btn-outline-secondary ms-2 d-flex align-items-center justify-content-center"
+                        (click)="navigateToIndustries()"
+                        *ngIf="isIndustryEdit"
+                      >
+                        <span>Cancelar</span>
+                      </button>
+                      <!-- Agregar/Guardar -->
+                      <button
+                        type="submit"
+                        class="btn btn-success ms-2 d-flex align-items-center justify-content-center"
+                        [disabled]="
+                          !industry.name ||
+                          !isIndustryValid() ||
+                          industryName.errors
+                        "
+                      >
+                        <span>{{
+                          isIndustryEdit ? "Guardar" : "Agregar"
+                        }}</span>
+                      </button>
+                    </div>
+                    <div
+                      *ngIf="industryName.touched && !isIndustryValid()"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >El rubro ya está en uso</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="industryName.touched && industryName.errors?.['minlength']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >El rubro debe tener al menos 4 caracteres</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="industryName.touched && industryName.errors?.['maxlength']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >El rubro no debe superar los 50 caracteres</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </form>
+        </div>
+
+        <!-- Loader -->
+        <div
+          class="d-flex justify-content-center align-items-center"
+          style="height: 40vh"
+          *ngIf="isLoadingIndustries"
+        >
+          <span class="loader"></span>
+        </div>
+
+        <!-- Tabla -->
+        <div class="row" *ngIf="!isLoadingIndustries">
+          <table
+            class="table table-bordered table-hover text-center align-middle"
+          >
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th class="position-relative">
+                  <div class="d-flex justify-content-center align-items-center">
+                    Nombre
+                    <div class="position-absolute" style="right: 10px">
+                      <button
+                        class="btn btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center custom-dark"
+                        style="width: 25px; height: 25px"
+                        (click)="updateIndustrySort()"
+                      >
+                        <span
+                          class="material-icons"
+                          style="font-size: 16px"
+                          *ngIf="industrySort === 'Default'"
+                        >
+                          sort
+                        </span>
+                        <span
+                          class="material-icons"
+                          style="font-size: 16px"
+                          *ngIf="industrySort === 'Ascending'"
+                        >
+                          keyboard_arrow_up
+                        </span>
+                        <span
+                          class="material-icons"
+                          style="font-size: 16px"
+                          *ngIf="industrySort === 'Descending'"
+                        >
+                          keyboard_arrow_down
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </th>
+
+                <th>Estado</th>
+                <th>
+                  <div class="d-flex justify-content-center align-items-center">
+                    <span class="material-icons-outlined"> more_horiz </span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="
+                  let industry of industryList
+                    | deleteFilter : deleteIndustryFilter
+                    | nameSort : industrySort
+                "
+              >
+                <td>{{ industry.id }}</td>
+                <td>{{ industry.name }}</td>
+                <td>{{ industry.isDeleted ? "Inactivo" : "Activo" }}</td>
+                <td>
+                  <!-- Actions -->
+                  <div class="btn-group">
+                    <!-- Editar -->
+                    <button
+                      class="btn btn-outline-secondary custom-dark"
+                      (click)="editIndustry(industry.id!)"
+                      *ngIf="!industry.isDeleted"
+                    >
+                      <span class="material-icons" style="font-size: 16px"
+                        >edit</span
+                      >
+                    </button>
+
+                    <!-- Borrar -->
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger"
+                      (click)="
+                        confirmDeleteIndustry(industry.id!, industry.name)
+                      "
+                      data-bs-toggle="modal"
+                      data-bs-target="#deleteIndustryModal"
+                      *ngIf="!industry.isDeleted"
+                    >
+                      <span class="material-icons" style="font-size: 16px">
+                        delete
+                      </span>
+                    </button>
+
+                    <!-- Restaurar -->
+                    <button
+                      type="button"
+                      class="btn btn-outline-success"
+                      (click)="
+                        confirmRestoreIndustry(industry.id!, industry.name)
+                      "
+                      data-bs-toggle="modal"
+                      data-bs-target="#restoreIndustryModal"
+                      *ngIf="industry.isDeleted"
+                    >
+                      <span class="material-icons" style="font-size: 16px">
+                        undo
+                      </span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot *ngIf="hasDeletedIndustries()">
+              <tr style="border: none">
+                <td
+                  colspan="12"
+                  class="text-muted text-center small"
+                  style="border: none"
+                >
+                  <div class="d-flex justify-content-center position-relative">
+                    <!-- Checkbox -->
+                    <div
+                      class="form-check position-absolute"
+                      style="right: 10px"
+                      [ngClass]="
+                        !hasDeletedIndustries() ? 'd-none' : 'd-inline'
+                      "
+                    >
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value=""
+                        id="flexCheckDefault2"
+                        [(ngModel)]="deleteIndustryFilter"
+                        (change)="onIndustryCheckboxChange($event)"
+                      />
+                      <label class="form-check-label" for="flexCheckDefault2">
+                        Ver rubros eliminados
+                      </label>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="row mt-3" *ngIf="!isLoadingCategories || !isLoadingIndustries">
+      <div class="d-flex justify-content-center">
+        <button
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="navigateBack()"
+        >
+          Volver
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Category Modal -->
+  <div
+    class="modal fade"
+    id="deleteCategoryModal"
+    tabindex="-1"
+    aria-labelledby="deleteCategoryModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteCategoryModalLabel">
+            Eliminar Categoría
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="deleteMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-bs-dismiss="modal"
+            (click)="deleteCategory()"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Industry Modal -->
+  <div
+    class="modal fade"
+    id="deleteIndustryModal"
+    tabindex="-1"
+    aria-labelledby="deleteIndustryModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteIndustryModalLabel">
+            Eliminar Rubro
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="deleteMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-bs-dismiss="modal"
+            (click)="deleteIndustry()"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restore Category Modal -->
+  <div
+    class="modal fade"
+    id="restoreCategoryModal"
+    tabindex="-1"
+    aria-labelledby="restoreCategoryModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="restoreCategoryModalLabel">
+            Restaurar Categoría
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="restoreMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-success"
+            data-bs-dismiss="modal"
+            (click)="restoreCategory()"
+          >
+            Restaurar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restore Industry Modal -->
+  <div
+    class="modal fade"
+    id="restoreIndustryModal"
+    tabindex="-1"
+    aria-labelledby="restoreIndustryModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="restoreIndustryModalLabel">
+            Restaurar Rubro
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="restoreMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-success"
+            data-bs-dismiss="modal"
+            (click)="restoreIndustry()"
+          >
+            Restaurar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

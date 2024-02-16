@@ -1,0 +1,52 @@
+.custom-btn {
+  border: 1px solid #393e46;
+}
+
+.custom-btn:hover {
+  background-color: #393e46;
+  color: white;
+}
+
+.custom-btn-fill {
+  background-color: #393e46;
+  color: white;
+}
+
+.custom-btn-fill:hover {
+  background-color: #494e56;
+  color: white;
+}
+
+.custom-card {
+  width: 400px;
+}
+
+.custom-chart {
+  height: 250px;
+  width: 400px;
+}
+
+.custom-image {
+  height: 200px;
+  object-fit: cover;
+}
+
+.loader {
+  animation: rotation 1s linear infinite;
+  border: 3px solid #393e46;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: inline-block;
+  height: 38px;
+  width: 38px;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

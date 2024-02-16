@@ -1,0 +1,13 @@
+/* .app-container {
+  min-height: 100vh;
+} */
+
+.main-container {
+  /* flex: 1; */
+  margin-bottom: 4rem;
+  margin-top: 4rem;
+}
+
+/* .footer-container {
+  margin-top: auto;
+} */

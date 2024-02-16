@@ -1,0 +1,31 @@
+meta {
+  name: Create Order
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:8080/orders
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "number": "OC-20240209-1",
+      "issueDate": "2024-02-09T00:00:00",
+      "deliveryDate": "2024-02-15T00:00:00",
+      "comments": "Comentarios",
+      "total": 10000,
+      "status": {
+          "id": 1
+      },
+      "supplier": {
+          "id": 1
+      }
+  }
+}

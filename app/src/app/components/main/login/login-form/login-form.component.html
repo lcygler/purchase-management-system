@@ -1,0 +1,163 @@
+<div
+  class="container m-4 d-flex flex-column justify-content-center align-items-center"
+  style="width: 100%; height: 60vh"
+>
+  <div class="row" style="width: 100%">
+    <div class="col-md">
+      <div class="d-flex flex-column align-items-center">
+        <div class="d-flex align-items-center">
+          <h2>Iniciar sesión</h2>
+          <img
+            src="../../../../assets/img/logo/logo.png"
+            class="ms-4"
+            style="width: 200px"
+          />
+        </div>
+
+        <!-- Form -->
+        <div class="row" style="width: 100%">
+          <form #UserForm="ngForm" (ngSubmit)="onSubmit(UserForm)">
+            <div class="row my-3">
+              <fieldset>
+                <!-- Email -->
+                <div class="col-md">
+                  <div class="mb-3">
+                    <label for="email" class="form-label">
+                      Usuario <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text">
+                        <fa-icon
+                          [icon]="faUser"
+                          style="font-size: 14px"
+                        ></fa-icon>
+                      </span>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="email"
+                        name="email"
+                        [ngClass]="{
+                          'is-invalid': email.touched && (email.errors || !isValid),
+                          'is-valid': email.touched && !email.errors,
+                        }"
+                        [(ngModel)]="user.email"
+                        #email="ngModel"
+                        required
+                        pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                        maxlength="255"
+                      />
+                    </div>
+                    <div
+                      *ngIf="email.touched && email.errors?.['required']"
+                      class="col-auto mt-1"
+                    >
+                      <span class="form-text text-danger"
+                        >Ingrese un usuario</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="email.touched && email.errors?.['pattern']"
+                      class="col-auto mt-1"
+                    >
+                      <span class="form-text text-danger"
+                        >Ingrese un usuario válido</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="email.touched && email.errors?.['maxlength']"
+                      class="col-auto mt-1"
+                    >
+                      <span class="form-text text-danger"
+                        >El usuario no debe superar los 255 caracteres</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Password -->
+                <div class="col-md">
+                  <div class="mb-3">
+                    <label for="password" class="form-label">
+                      Contraseña <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text">
+                        <fa-icon
+                          [icon]="faLock"
+                          style="font-size: 14px"
+                        ></fa-icon>
+                      </span>
+                      <input
+                        type="{{ showPassword ? 'text' : 'password' }}"
+                        class="form-control"
+                        id="password"
+                        name="password"
+                        [ngClass]="{
+                        'is-invalid': password.touched && (password.errors || !isValid),
+                        'is-valid': password.touched && !password.errors,
+                      }"
+                        [(ngModel)]="user.password"
+                        #password="ngModel"
+                        required
+                        maxlength="255"
+                      />
+                      <div class="input-group-append">
+                        <button
+                          type="button"
+                          class="input-group-text show-password-btn"
+                          style="text-decoration: none"
+                          (click)="toggleShowPassword()"
+                          [disabled]="!user.password"
+                        >
+                          {{ showPassword ? "Ocultar" : "Mostrar" }}
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      *ngIf="password.touched && password.errors?.['required']"
+                      class="col-auto mt-1"
+                    >
+                      <span class="form-text text-danger"
+                        >Ingrese una contraseña</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="password.touched && password.errors?.['maxlength']"
+                      class="col-auto mt-1"
+                    >
+                      <span class="form-text text-danger"
+                        >La contraseña no debe superar los 255 caracteres</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="showErrorMessage && !password.errors"
+                      class="col-auto mt-1"
+                    >
+                      <span class="form-text text-danger"
+                        >Usuario y/o contraseña incorrecto</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <div class="row">
+              <!-- Acciones -->
+              <div class="d-flex justify-content-center">
+                <button
+                  type="submit"
+                  class="btn custom-btn-fill"
+                  [disabled]="UserForm.invalid"
+                >
+                  Iniciar sesión
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

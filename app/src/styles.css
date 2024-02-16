@@ -1,0 +1,14 @@
+/* You can add global styles to this file, and also import other style files */
+@import "material-icons/iconfont/material-icons.css";
+
+.custom-tooltip .tooltip-inner {
+  background-color: #393e46;
+  margin-bottom: 5px;
+  max-width: 350px;
+  width: inherit;
+}
+
+.custom-tooltip.bs-tooltip-top .tooltip-arrow::before {
+  border-top-color: #393e46;
+  visibility: hidden;
+}

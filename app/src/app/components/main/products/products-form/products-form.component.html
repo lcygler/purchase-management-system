@@ -1,0 +1,365 @@
+<div class="container m-4" style="width: 100vw">
+  <div class="row">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/home">Inicio</a></li>
+        <li class="breadcrumb-item">
+          <a routerLink="/products">Productos</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ isEditView ? product.name : "Nuevo" }}
+        </li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="container mt-3" style="width: 50vw">
+    <div class="row-md-12">
+      <div class="col-md-12">
+        <h2 class="mb-4">
+          {{ isEditView ? "Editar Producto" : "Alta de Producto" }}
+        </h2>
+
+        <form #ProductForm="ngForm" (ngSubmit)="onSubmit(ProductForm)">
+          <div class="row">
+            <fieldset class="mb-4">
+              <legend>Datos del Producto</legend>
+              <div class="row">
+                <!-- SKU -->
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="sku" class="form-label">
+                      SKU <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="sku"
+                      name="sku"
+                      [(ngModel)]="product.sku"
+                      [ngClass]="{
+                        'is-invalid': sku.touched && (sku.errors || !isSkuValid()),
+                        'is-valid': sku.touched && !sku.errors && isSkuValid(),
+                      }"
+                      #sku="ngModel"
+                      required
+                    />
+                    <div
+                      *ngIf="sku.touched && sku.errors?.['required']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger">Ingrese un SKU</span>
+                    </div>
+                    <div *ngIf="sku.touched && !isSkuValid()" class="col-auto">
+                      <span class="form-text text-danger"
+                        >El SKU ya está en uso</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Nombre -->
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">
+                      Nombre <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="name"
+                      name="name"
+                      [ngClass]="{
+                      'is-invalid': name.touched && name.errors,
+                      'is-valid': name.touched && !name.errors,
+                    }"
+                      [(ngModel)]="product.name"
+                      #name="ngModel"
+                      required
+                      minlength="4"
+                      maxlength="50"
+                    />
+                    <div
+                      *ngIf="name.touched && name.errors?.['required']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >Ingrese un nombre</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="name.touched && name.errors?.['minlength']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >El nombre debe tener al menos 4 caracteres</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="name.touched && name.errors?.['maxlength']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >El nombre no debe superar los 50 caracteres</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Categoría -->
+                <div class="col-md-4">
+                  <div class="mb-3">
+                    <label for="category" class="form-label">
+                      Categoría <span class="text-danger">*</span>
+                    </label>
+                    <select
+                      class="form-select"
+                      id="category"
+                      name="category"
+                      [ngClass]="{
+                                    'is-invalid': category.touched && category.errors,
+                                    'is-valid': category.touched && !category.errors,
+                                  }"
+                      [(ngModel)]="product.category.id"
+                      #category="ngModel"
+                      required
+                    >
+                      <option value="" disabled selected>Seleccionar</option>
+                      <option
+                        *ngFor="let category of categoryList"
+                        [value]="category.id"
+                      >
+                        {{ category.name }}
+                      </option>
+                    </select>
+                    <div
+                      *ngIf="category.touched && category.errors?.['required']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >Seleccione una categoría</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <!-- Descripción -->
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label for="description" class="form-label">
+                      Descripción <span class="text-danger">*</span>
+                    </label>
+                    <textarea
+                      class="form-control"
+                      id="description"
+                      name="description"
+                      [ngClass]="{
+                      'is-invalid': description.touched && description.errors,
+                      'is-valid': description.touched && !description.errors,
+                    }"
+                      [(ngModel)]="product.description"
+                      #description="ngModel"
+                      required
+                      maxlength="255"
+                    ></textarea>
+                    <div
+                      *ngIf="description.touched && description.errors?.['required']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >Ingrese una descripción</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="description.touched && description.errors?.['maxlength']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >La descripción es muy extensa</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <!-- Imagen -->
+                <div class="col-md-12">
+                  <div class="mb-3">
+                    <label for="image" class="form-label">Imagen</label>
+                    <div class="d-flex align-items-center">
+                      <div class="input-group">
+                        <span class="input-group-text">
+                          <span class="material-icons" style="font-size: 16px">
+                            link
+                          </span>
+                        </span>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="image"
+                          name="image"
+                          [ngClass]="{
+                          'is-invalid': image.touched && (image.errors || !isImageValid),
+                          'is-valid': product.image!.url && image.touched && !image.errors && isImageValid,
+                        }"
+                          [(ngModel)]="product.image!.url"
+                          #image="ngModel"
+                          pattern="https?:\/\/(www\.)?[\-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([\-a-zA-Z0-9()!@:%_\+.~#?&\/\/=]*)"
+                          maxlength="255"
+                          (input)="resetImageError()"
+                        />
+                      </div>
+                      <div
+                        *ngIf="product.image!.url && isImageValid"
+                        class="ms-2"
+                      >
+                        <img
+                          src="{{ product.image!.url }}"
+                          class="img-fluid rounded"
+                          alt="..."
+                          style="object-fit: contain; width: 38px; height: 38px"
+                          (error)="setImageError()"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      *ngIf="image.touched && (image.errors?.['pattern'] || !isImageValid)"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >Ingrese una URL válida</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="image.touched && image.errors?.['maxlength']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >La URL no debe superar los 255 caracteres</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="row">
+            <fieldset class="mb-4">
+              <legend>Datos del Proveedor</legend>
+              <div class="row">
+                <!-- Proveedor -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="supplier" class="form-label">
+                      Proveedor <span class="text-danger">*</span>
+                    </label>
+                    <select
+                      class="form-select"
+                      id="supplier"
+                      name="supplier"
+                      [ngClass]="{
+                      'is-invalid': supplier.touched && (supplier.errors || supplier === null),
+                      'is-valid': supplier.touched && !supplier.errors,
+                    }"
+                      [(ngModel)]="product.supplier.id"
+                      #supplier="ngModel"
+                      required
+                    >
+                      <option value="null" disabled selected>
+                        Seleccionar
+                      </option>
+                      <option
+                        *ngFor="let supplier of supplierList"
+                        [value]="supplier.id"
+                      >
+                        {{ supplier.businessName }}
+                      </option>
+                    </select>
+                    <div
+                      *ngIf="supplier.touched && (supplier.errors?.['required'] || supplier === null)"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >Seleccione un proveedor</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Precio -->
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="price" class="form-label">
+                      Precio <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="price"
+                        name="price"
+                        [ngClass]="{
+                      'is-invalid': price.touched && price.errors,
+                      'is-valid': price.touched && !price.errors,
+                    }"
+                        [(ngModel)]="product.price"
+                        #price="ngModel"
+                        required
+                        min="0"
+                      />
+                    </div>
+                    <div
+                      *ngIf="price.touched && price.errors?.['required']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >Ingrese un precio</span
+                      >
+                    </div>
+                    <div
+                      *ngIf="price.touched && price.errors?.['min']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >El precio no puede ser negativo</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <div class="row">
+            <!-- Acciones -->
+            <div class="d-flex justify-content-center">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="navigateBack()"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="btn btn-success ms-2"
+                [disabled]="
+                  ProductForm.invalid ||
+                  !isSkuValid() ||
+                  (product.image!.url && !isImageValid)
+                "
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

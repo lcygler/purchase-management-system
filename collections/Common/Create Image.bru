@@ -1,0 +1,17 @@
+meta {
+  name: Create Image
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/images
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "url": "https://res.cloudinary.com/dadsbmqwh/image/upload/v1706757607/asj/products/product-placeholder_mpyyog.png"
+  }
+}

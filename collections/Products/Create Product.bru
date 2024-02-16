@@ -1,0 +1,30 @@
+meta {
+  name: Create Product
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:8080/products
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "sku": "JTF9KSY4-1",
+      "name": "Nombre",
+      "description": "Descripción",
+      "price": 9.99,
+      "category": {
+          "id": 1
+      },
+      "supplier": {
+          "id": 1
+      }
+  }
+}

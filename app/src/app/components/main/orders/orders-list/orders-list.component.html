@@ -1,0 +1,348 @@
+<div class="container m-4" style="width: 100vw">
+  <!-- Breadcrumbs -->
+  <div class="row">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/home">Inicio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Ordenes</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Heading -->
+  <div class="row d-flex align-items-center mb-2">
+    <div class="col-9">
+      <h5 class="card-title py-2">Listado de Ordenes</h5>
+    </div>
+    <div class="col-3 d-flex justify-content-end">
+      <!-- Search -->
+      <div class="d-flex my-2 me-2" role="search">
+        <input
+          class="form-control"
+          type="text"
+          placeholder="Buscar"
+          aria-label="Buscar"
+          [(ngModel)]="searchTerm"
+          style="min-width: 200px"
+          (keyup)="filterOrders()"
+        />
+      </div>
+
+      <!-- Filter -->
+      <div class="dropdown my-2 me-2">
+        <button
+          class="btn btn-outline-secondary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          {{ statusFilter }}
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a
+              class="dropdown-item custom-item"
+              (click)="updateFilter('Estado')"
+            >
+              <strong>Todos</strong>
+            </a>
+          </li>
+          <li>
+            <a
+              *ngFor="let status of statusList"
+              class="dropdown-item custom-item"
+              (click)="updateFilter(status.name)"
+            >
+              {{ status.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Pagination -->
+      <div class="btn-group my-2 btn-actions">
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredOrders.length < 1 || currentPage === 1"
+          (click)="updatePage('first')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_double_arrow_left
+          </span>
+        </button>
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredOrders.length < 1 || currentPage === 1"
+          (click)="updatePage('prev')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_arrow_left
+          </span>
+        </button>
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredOrders.length < 1 || !hasMoreItems()"
+          (click)="updatePage('next')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_arrow_right
+          </span>
+        </button>
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredOrders.length < 1 || currentPage === totalPages"
+          (click)="updatePage('last')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_double_arrow_right
+          </span>
+        </button>
+      </div>
+
+      <!-- Add Order -->
+      <button
+        class="btn btn-success m-2 d-flex justify-content-center align-items-center"
+        style="padding-left: 10px; padding-right: 15px"
+        (click)="addOrder()"
+      >
+        <span class="material-icons" style="font-size: 16px; margin-right: 4px"
+          >add</span
+        >
+        Nuevo
+      </button>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div
+    class="d-flex justify-content-center align-items-center"
+    style="height: 50vh"
+    *ngIf="isLoading"
+  >
+    <span class="loader"></span>
+  </div>
+
+  <!-- Order List -->
+  <div class="row overflow-x-auto" *ngIf="!isLoading">
+    <table
+      class="table table-bordered table-striped table-hover text-center text-nowrap align-middle"
+    >
+      <thead class="align-middle">
+        <tr>
+          <th>N° de Orden</th>
+          <th class="position-relative">
+            <div
+              class="d-flex justify-content-center align-items-center"
+              style="padding-right: 30px"
+            >
+              Fecha de Emisión
+              <div class="position-absolute" style="right: 10px">
+                <button
+                  class="btn btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center custom-dark"
+                  style="width: 25px; height: 25px"
+                  (click)="updateIssueDateSort()"
+                >
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="issueDateSort === 'Default'"
+                  >
+                    sort
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="issueDateSort === 'Ascending'"
+                  >
+                    keyboard_arrow_up
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="issueDateSort === 'Descending'"
+                  >
+                    keyboard_arrow_down
+                  </span>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th class="position-relative">
+            <div
+              class="d-flex justify-content-center align-items-center"
+              style="padding-right: 30px"
+            >
+              Fecha de Entrega
+              <div class="position-absolute" style="right: 10px">
+                <button
+                  class="btn btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center custom-dark"
+                  style="width: 25px; height: 25px"
+                  (click)="updateDeliveryDateSort()"
+                >
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="deliveryDateSort === 'Default'"
+                  >
+                    sort
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="deliveryDateSort === 'Ascending'"
+                  >
+                    keyboard_arrow_up
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="deliveryDateSort === 'Descending'"
+                  >
+                    keyboard_arrow_down
+                  </span>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th>Proveedor</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>
+            <div class="d-flex justify-content-center align-items-center">
+              <span class="material-icons-outlined"> more_horiz </span>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="filteredOrders.length === 0">
+          <td colspan="7">
+            <div class="d-flex align-items-center justify-content-center">
+              <span
+                class="material-icons-outlined me-2"
+                style="font-size: 16px"
+              >
+                info
+              </span>
+              No se encontraron resultados
+            </div>
+          </td>
+        </tr>
+        <tr
+          *ngFor="
+            let order of orderList
+              | statusFilter : statusFilter
+              | searchFilter : searchTerm
+              | issueDateSort : issueDateSort
+              | deliveryDateSort : deliveryDateSort
+              | slice : currentPage : itemsPerPage
+          "
+          [ngClass]="{ 'inactive-order': order.status.name === 'Cancelado' }"
+        >
+          <!-- Order -->
+          <td class="px-4">{{ order.number }}</td>
+          <td class="px-4">{{ order.issueDate | date : "dd/MM/yyyy" }}</td>
+          <td class="px-4">{{ order.deliveryDate | date : "dd/MM/yyyy" }}</td>
+          <td class="px-4">{{ order.supplier.businessName }}</td>
+          <td class="px-4">{{ order.total | currency }}</td>
+          <td class="px-4">
+            <span [ngClass]="getStatusBadgeClass(order.status.name)">
+              {{ order.status.name }}
+            </span>
+          </td>
+          <td class="px-4">
+            <!-- Actions -->
+            <div class="btn-group btn-actions">
+              <button
+                class="btn btn-outline-primary"
+                (click)="openOrder(order.id)"
+              >
+                <span class="material-icons" style="font-size: 16px"
+                  >remove_red_eye</span
+                >
+              </button>
+              <button
+                class="btn btn-outline-secondary custom-dark"
+                (click)="editOrder(order.id)"
+              >
+                <span class="material-icons" style="font-size: 16px">
+                  edit
+                </span>
+              </button>
+              <button
+                class="btn btn-outline-danger"
+                (click)="
+                  confirmDelete(
+                    order.id,
+                    order.number,
+                    order.supplier.businessName
+                  )
+                "
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                [disabled]="order.status.name === 'Cancelado'"
+              >
+                <span class="material-icons" style="font-size: 16px">
+                  delete
+                </span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot *ngIf="filteredOrders.length > 0">
+        <tr style="border: none">
+          <td
+            colspan="12"
+            class="text-muted text-center small"
+            style="border: none"
+          >
+            {{ calculateRange() }}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Delete Modal -->
+  <div
+    class="modal fade"
+    id="deleteModal"
+    tabindex="-1"
+    aria-labelledby="deleteModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteModalLabel">Cancelar Orden</h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="deleteMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cerrar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-bs-dismiss="modal"
+            (click)="deleteOrder()"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,643 @@
+<div class="container m-4" style="width: 100vw">
+  <div class="row">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/home">Inicio</a></li>
+        <li class="breadcrumb-item">
+          <a routerLink="/orders">Ordenes</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ isAddView ? "Nuevo" : this.orderNumber }}
+        </li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="container mt-3" style="width: 50vw">
+    <div class="row-md-12">
+      <div class="col-md-12">
+        <h2 class="mb-4" *ngIf="!isEditView">
+          {{ isAddView ? "Crear Orden" : "Detalle de Orden" }}
+        </h2>
+        <h2 class="mb-4" *ngIf="isEditView">Editar Orden</h2>
+
+        <form #OrderForm="ngForm" (ngSubmit)="onSubmit(OrderForm)">
+          <div class="row">
+            <div class="col-md-12">
+              <fieldset class="mb-4">
+                <legend>Datos de la Orden</legend>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <!-- Número de Orden -->
+                    <div class="mb-3">
+                      <label for="number" class="form-label">
+                        N° de Orden
+                        <span
+                          class="text-danger"
+                          *ngIf="isAddView || isEditView"
+                          >*</span
+                        >
+                      </label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="number"
+                        name="number"
+                        [(ngModel)]="order.number"
+                        [ngClass]="{
+                          'is-invalid': number.touched && (number.errors || !isNumberValid()),
+                          'is-valid': number.touched && !number.errors && isNumberValid(),
+                        }"
+                        #number="ngModel"
+                        required
+                        [disabled]="!isAddView && !isEditView"
+                      />
+                      <div
+                        *ngIf="number.touched && number.errors?.['required']"
+                        class="col-auto"
+                      >
+                        <span class="form-text text-danger"
+                          >Ingrese un número de orden</span
+                        >
+                      </div>
+                      <div
+                        *ngIf="number.touched && !isNumberValid()"
+                        class="col-auto"
+                      >
+                        <span class="form-text text-danger"
+                          >El número de orden ya está en uso</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <!-- Estado -->
+                    <!-- Add/Detail View -->
+                    <div class="mb-3" *ngIf="!isEditView">
+                      <label for="status-view" class="form-label">
+                        Estado
+                        <span class="text-danger" *ngIf="isAddView">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="status-view"
+                        name="statusView"
+                        [ngModel]="order.status?.name"
+                        [ngClass]="getStatusClass(order.status?.name!)"
+                        [style.fontWeight]="'bold'"
+                        disabled
+                      />
+                    </div>
+
+                    <!-- Edit View -->
+                    <div class="mb-3" *ngIf="isEditView">
+                      <label for="status" class="form-label">
+                        Estado <span class="text-danger">*</span>
+                      </label>
+                      <select
+                        class="form-select"
+                        id="status"
+                        name="status"
+                        [ngClass]="{
+                          'is-invalid': status.touched && (status.errors || status === null),
+                          'is-valid': status.touched && !status.errors,
+                        }"
+                        [(ngModel)]="order.status!.id"
+                        #status="ngModel"
+                        required
+                      >
+                        <option value="null" disabled selected>
+                          Seleccionar
+                        </option>
+                        <option
+                          *ngFor="let status of statusList"
+                          [value]="status.id"
+                        >
+                          {{ status.name }}
+                        </option>
+                      </select>
+                      <div
+                        *ngIf="status.touched && (status.errors?.['required'] || status === null)"
+                        class="col-auto"
+                      >
+                        <span class="form-text text-danger"
+                          >Seleccione un estado</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6">
+                    <!-- Issue Date -->
+                    <div class="mb-3">
+                      <label for="issueDate" class="form-label">
+                        Fecha de Emisión
+                        <span
+                          class="text-danger"
+                          *ngIf="isAddView || isEditView"
+                          >*</span
+                        >
+                      </label>
+                      <div class="input-group">
+                        <span
+                          class="input-group-text"
+                          *ngIf="!isAddView && !isEditView"
+                        >
+                          <fa-icon
+                            [icon]="faCalendar"
+                            style="font-size: 14px"
+                          ></fa-icon>
+                        </span>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="issueDate"
+                          name="issueDate"
+                          [ngModel]="
+                            isAddView
+                              ? (todayDate | date : 'dd/MM/yyyy')
+                              : (order.issueDate | date : 'dd/MM/yyyy')
+                          "
+                          disabled
+                        />
+                        <span
+                          class="input-group-text"
+                          *ngIf="isAddView || isEditView"
+                        >
+                          <fa-icon
+                            [icon]="faCalendar"
+                            style="font-size: 14px"
+                          ></fa-icon>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <!-- Delivery Date -->
+                    <div class="mb-3">
+                      <label for="deliveryDate" class="form-label">
+                        Fecha de Entrega
+                        <span
+                          class="text-danger"
+                          *ngIf="isAddView || isEditView"
+                          >*</span
+                        >
+                      </label>
+                      <!-- Vista Nueva Orden -->
+                      <div *ngIf="isAddView || isEditView">
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="deliveryDate"
+                          name="deliveryDate"
+                          [ngClass]="{
+                            'is-invalid': deliveryDate.touched && (deliveryDate.errors || !isDeliveryDateValid()),
+                            'is-valid': deliveryDate.touched && !deliveryDate.errors && isDeliveryDateValid(),
+                          }"
+                          [(ngModel)]="order.deliveryDate"
+                          #deliveryDate="ngModel"
+                          [min]="getMinDate()"
+                          [max]="getMaxDate()"
+                          required
+                        />
+                        <div
+                          *ngIf="deliveryDate.touched && deliveryDate.errors?.['required']"
+                          class="col-auto"
+                        >
+                          <span class="form-text text-danger">
+                            Seleccione una fecha de entrega
+                          </span>
+                        </div>
+                        <div
+                          *ngIf="deliveryDate.touched && deliveryDate.errors?.['min']"
+                          class="col-auto"
+                        >
+                          <span class="form-text text-danger"
+                            >La fecha de entrega debe ser mayor a 48 hs.</span
+                          >
+                        </div>
+                        <div
+                          *ngIf="deliveryDate.touched && deliveryDate.errors?.['max']"
+                          class="col-auto"
+                        >
+                          <span class="form-text text-danger">
+                            La fecha de entrega no puede superar los 30 días
+                          </span>
+                        </div>
+                        <div
+                          *ngIf="
+                            deliveryDate.touched &&
+                            !deliveryDate.errors &&
+                            !isDeliveryDateValid()
+                          "
+                          class="col-auto"
+                        >
+                          <span class="form-text text-danger"
+                            >La fecha de entrega no es válida</span
+                          >
+                        </div>
+                      </div>
+                      <!-- Vista Detalle Orden -->
+                      <div *ngIf="!isAddView && !isEditView">
+                        <div class="input-group">
+                          <span class="input-group-text">
+                            <fa-icon
+                              [icon]="faCalendar"
+                              style="font-size: 14px"
+                            ></fa-icon>
+                          </span>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="deliveryDate"
+                            name="deliveryDate"
+                            [ngModel]="order.deliveryDate | date : 'dd/MM/yyyy'"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <!-- Comentarios -->
+                  <div class="mb-3">
+                    <label for="comments" class="form-label"
+                      >Información de Recepción</label
+                    >
+                    <textarea
+                      class="form-control"
+                      id="comments"
+                      name="comments"
+                      [ngClass]="{
+                        'is-invalid': comments.touched && comments.errors,
+                        'is-valid':
+                          comments.touched &&
+                          !comments.errors &&
+                          comments.value &&
+                          isAddView
+                      }"
+                      [(ngModel)]="order.comments"
+                      #comments="ngModel"
+                      maxlength="200"
+                      [disabled]="!isAddView && !isEditView"
+                    ></textarea>
+                    <div
+                      *ngIf="comments.touched && comments.errors?.['maxlength']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger"
+                        >El comentario debe ser más breve</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12" *ngIf="isAddView">
+              <fieldset class="mb-4">
+                <legend>Datos del Producto</legend>
+                <div class="row">
+                  <!-- Proveedor -->
+                  <div class="col-md">
+                    <label for="supplier" class="form-label">Proveedor</label>
+                    <div class="d-flex align-items-center">
+                      <select
+                        class="form-select"
+                        id="supplier"
+                        name="supplier"
+                        [(ngModel)]="selectedSupplierId"
+                        (ngModelChange)="onSupplierChange($event)"
+                        #supplier="ngModel"
+                        [disabled]="isSupplierSelectDisabled"
+                      >
+                        <option value="" disabled selected>Seleccionar</option>
+                        <option
+                          *ngFor="let supplier of supplierList"
+                          [value]="supplier.id"
+                        >
+                          {{ supplier.businessName }}
+                        </option>
+                      </select>
+
+                      <div *ngIf="supplierImageUrl" class="ms-2">
+                        <img
+                          src="{{ supplierImageUrl }}"
+                          class="img-fluid rounded"
+                          alt="..."
+                          style="object-fit: contain; width: 38px; height: 38px"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Producto -->
+                  <div class="col-md">
+                    <label for="product" class="form-label">Producto</label>
+                    <div class="d-flex align-items-center">
+                      <select
+                        class="form-select"
+                        id="product"
+                        name="product"
+                        [(ngModel)]="selectedProductId"
+                        (ngModelChange)="onProductChange($event)"
+                        #product="ngModel"
+                      >
+                        <option value="" disabled selected>Seleccionar</option>
+                        <option
+                          *ngFor="let product of filteredProducts"
+                          [value]="product.id"
+                        >
+                          {{ product.name }}
+                        </option>
+                      </select>
+
+                      <div *ngIf="productImageUrl" class="ms-2">
+                        <img
+                          src="{{ productImageUrl }}"
+                          class="img-fluid rounded image-zoom"
+                          alt="..."
+                          style="object-fit: contain; width: 38px; height: 38px"
+                        />
+                      </div>
+                    </div>
+
+                    <div *ngIf="selectedProductPrice" class="col-auto mt-1">
+                      <span class="form-text">
+                        {{ "Precio: " + (selectedProductPrice | currency) }}
+                      </span>
+                    </div>
+
+                    <div
+                      *ngIf="product.touched && !selectedSupplierId"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger">
+                        Seleccione un proveedor primero
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Cantidad -->
+                  <div class="col-md-3">
+                    <label for="quantity" class="form-label">Cantidad</label>
+                    <div class="d-flex align-items-center">
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="quantity"
+                        name="quantity"
+                        [(ngModel)]="selectedQuantity"
+                        #quantity="ngModel"
+                        min="1"
+                        max="99"
+                      />
+                      <button
+                        type="button"
+                        class="btn btn-success ms-2 rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 32px; height: 32px"
+                        [disabled]="
+                          !selectedSupplierId ||
+                          !selectedProductId ||
+                          !selectedQuantity
+                        "
+                        (click)="addProduct()"
+                      >
+                        <span
+                          class="material-icons-outlined"
+                          style="font-size: 16px"
+                        >
+                          add
+                        </span>
+                      </button>
+                    </div>
+                    <div
+                      *ngIf="quantity.touched && quantity.errors?.['min']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger">Mínimo: 1</span>
+                    </div>
+                    <div
+                      *ngIf="quantity.touched && quantity.errors?.['max']"
+                      class="col-auto"
+                    >
+                      <span class="form-text text-danger">Máximo: 99</span>
+                    </div>
+                  </div>
+
+                  <!-- Acciones -->
+                  <div class="col-md-2 d-none">
+                    <button
+                      type="button"
+                      class="btn btn-success d-flex align-items-center justify-content-center"
+                      style="height: 36px"
+                      [disabled]="
+                        !selectedSupplierId ||
+                        !selectedProductId ||
+                        !selectedQuantity
+                      "
+                      (click)="addProduct()"
+                    >
+                      <span
+                        class="material-icons-outlined"
+                        style="font-size: 16px"
+                      >
+                        add
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+
+          <!-- Productos -->
+          <div class="row my-3">
+            <legend>Listado de Productos</legend>
+            <div
+              class="d-flex align-items-center justify-content-center my-4"
+              *ngIf="orderDetailList.length < 1"
+            >
+              <span
+                class="material-icons-outlined me-2"
+                style="font-size: 16px"
+              >
+                info
+              </span>
+              No se agregaron productos.
+            </div>
+            <table
+              class="table table-bordered table-hover text-center align-middle"
+              *ngIf="orderDetailList.length > 0"
+            >
+              <thead class="table-light">
+                <tr>
+                  <th>SKU</th>
+                  <th>Nombre</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Subtotal</th>
+                  <th *ngIf="isAddView">
+                    <div
+                      class="d-flex justify-content-center align-items-center"
+                    >
+                      <span class="material-icons-outlined"> more_horiz </span>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let orderDetail of orderDetailList">
+                  <td>{{ orderDetail.product.sku }}</td>
+                  <td>{{ orderDetail.product.name }}</td>
+                  <td>{{ orderDetail.quantity }}</td>
+                  <td>{{ orderDetail.product.price | currency }}</td>
+                  <td>
+                    {{
+                      orderDetail.product.price! * orderDetail.quantity!
+                        | currency
+                    }}
+                  </td>
+                  <td *ngIf="isAddView">
+                    <!-- Actions -->
+                    <div class="btn-group my-2 btn-actions">
+                      <button
+                        type="button"
+                        class="btn btn-outline-danger"
+                        (click)="confirmDelete(orderDetail.product.id!)"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteModal"
+                      >
+                        <span class="material-icons" style="font-size: 16px">
+                          delete
+                        </span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot style="border: none">
+                <tr style="border: none">
+                  <td colspan="4" class="text-end" style="border: none">
+                    <strong>Total:</strong>
+                  </td>
+                  <td class="text-center" style="border: none">
+                    {{ calculateTotal() | currency }}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Delete Modal -->
+          <div
+            class="modal fade"
+            id="deleteModal"
+            tabindex="-1"
+            aria-labelledby="deleteModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="deleteModalLabel">
+                    Remover Producto
+                  </h1>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  {{ deleteMessage }}
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    data-bs-dismiss="modal"
+                    (click)="removeProduct()"
+                  >
+                    Remover
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="row">
+            <div class="d-flex justify-content-center">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="navigateBack()"
+                *ngIf="!isAddView && !isEditView"
+              >
+                Volver
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="navigateBack()"
+                *ngIf="isAddView || isEditView"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="btn btn-success ms-2"
+                *ngIf="isAddView || isEditView"
+                [disabled]="
+                  OrderForm.invalid ||
+                  orderDetailList.length < 1 ||
+                  !isNumberValid()
+                "
+              >
+                Guardar
+              </button>
+              <button
+                class="btn btn-success ms-2"
+                (click)="editOrder()"
+                *ngIf="!isAddView && !isEditView"
+              >
+                Editar
+              </button>
+            </div>
+          </div>
+
+          <!-- Limpiar -->
+          <div class="row mt-2 d-none">
+            <button
+              type="button"
+              class="btn btn-link btn-sm text-body-secondary"
+              style="text-decoration: none"
+              (click)="resetForm(OrderForm)"
+            >
+              Limpiar formulario
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

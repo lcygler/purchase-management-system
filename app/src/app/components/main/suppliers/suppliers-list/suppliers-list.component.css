@@ -1,0 +1,38 @@
+.custom-dark {
+  border-color: #393e46;
+  color: #393e46;
+}
+
+.custom-dark:hover {
+  background-color: #393e46;
+  color: white;
+}
+
+.no-border {
+  border: none;
+}
+
+.deleted {
+  color: #999;
+  text-decoration: line-through;
+}
+
+.loader {
+  animation: rotation 1s linear infinite;
+  border: 3px solid #393e46;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: inline-block;
+  height: 38px;
+  width: 38px;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

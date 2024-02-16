@@ -1,0 +1,273 @@
+<div class="container mt-4">
+  <div class="row">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/home">Inicio</a></li>
+        <li class="breadcrumb-item">
+          <a routerLink="/suppliers">Proveedores</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ supplier.businessName }}
+        </li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="container mt-4">
+    <div class="row">
+      <!-- Image -->
+      <div
+        class="col-md-5 d-flex justify-content-center align-items-center"
+        style="padding-right: 100px"
+      >
+        <img
+          src="{{ supplier.image?.url }}"
+          class="rounded"
+          alt="..."
+          style="object-fit: contain; width: 300px; height: 300px"
+          (error)="handleImageError($event)"
+        />
+      </div>
+
+      <div class="col-md-7">
+        <!-- Information -->
+        <div class="mt-4">
+          <!-- Badges -->
+          <div class="d-flex">
+            <div>
+              <p
+                class="badge me-2 p-2"
+                style="font-size: 12px"
+                [ngClass]="
+                  supplier.isDeleted ? 'text-bg-danger' : 'text-bg-success '
+                "
+              >
+                {{ supplier.isDeleted ? "Inactivo" : "Activo" }}
+              </p>
+            </div>
+
+            <div>
+              <p
+                class="badge p-2"
+                style="font-size: 12px; background-color: #393e46"
+              >
+                {{ supplier.industry.name }}
+              </p>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <h2>{{ supplier.businessName }}</h2>
+          </div>
+
+          <div class="mb-4">
+            <small
+              ><strong>Código de Proveedor:</strong> {{ supplier.code }}</small
+            >
+          </div>
+        </div>
+
+        <!-- Nav Tabs -->
+        <div>
+          <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
+            <li [ngbNavItem]="1">
+              <button ngbNavLink>Información</button>
+              <ng-template ngbNavContent>
+                <!-- Information -->
+                <div class="mt-4">
+                  <div>
+                    <div class="d-flex align-items-center">
+                      <p class="custom-text d-flex align-items-center">
+                        <strong>Sitio Web:</strong>
+                        <a href="{{ supplier.website }}" class="ms-1">
+                          {{ supplier.website }}
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="d-flex align-items-center">
+                      <p class="custom-text d-flex align-items-center">
+                        <strong>Email:</strong>
+                        <a href="mailto:{{ supplier.email }}" class="ms-1">
+                          {{ supplier.email }}
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                  <div>
+                    <p class="custom-text">
+                      <strong>Teléfono:</strong>
+                      {{ supplier.phone }}
+                    </p>
+                  </div>
+                </div>
+              </ng-template>
+            </li>
+            <li [ngbNavItem]="2">
+              <button ngbNavLink>Datos Fiscales</button>
+              <ng-template ngbNavContent>
+                <!-- Tax Information -->
+                <div class="mt-4">
+                  <div>
+                    <p class="custom-text">
+                      <strong>CUIT:</strong> {{ supplier.taxInformation.cuit }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="custom-text">
+                      <strong>Condición IVA:</strong>
+                      {{ supplier.taxInformation.vatCondition?.name }}
+                    </p>
+                  </div>
+                  <div style="visibility: hidden">
+                    <p class="custom-text">-</p>
+                  </div>
+                </div>
+              </ng-template>
+            </li>
+            <li [ngbNavItem]="3">
+              <button ngbNavLink>Ubicación</button>
+              <ng-template ngbNavContent>
+                <!-- Address -->
+                <div class="mt-4">
+                  <div>
+                    <p class="custom-text">
+                      <strong>Dirección:</strong> {{ supplier.address.street }}
+                      {{ supplier.address.number }} (CP
+                      {{ supplier.address.postalCode }})
+                    </p>
+                  </div>
+
+                  <div>
+                    <p class="custom-text">
+                      <strong>Provincia:</strong>
+                      {{ supplier.address.state?.name }}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p class="custom-text">
+                      <strong>País:</strong>
+                      {{ supplier.address.state?.country?.name }}
+                    </p>
+                  </div>
+                </div>
+              </ng-template>
+            </li>
+            <li [ngbNavItem]="4">
+              <button ngbNavLink>Contacto</button>
+              <ng-template ngbNavContent>
+                <!-- Contact Details -->
+                <div class="mt-4">
+                  <div>
+                    <p class="custom-text">
+                      <strong>Nombre:</strong>
+                      {{ supplier.contactDetails.firstName }}
+                      {{ supplier.contactDetails.lastName }} ({{
+                        supplier.contactDetails.role
+                      }})
+                    </p>
+                  </div>
+                  <div>
+                    <div class="d-flex align-items-center">
+                      <p class="custom-text d-flex align-items-center">
+                        <strong>Email:</strong>
+                        <a
+                          href="mailto:{{ supplier.contactDetails.email }}"
+                          class="ms-1"
+                        >
+                          {{ supplier.contactDetails.email }}
+                        </a>
+                      </p>
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <p class="custom-text d-flex align-items-center">
+                        <strong>Teléfono:</strong>
+                        <span class="ms-1">
+                          {{ supplier.contactDetails.phone }}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </li>
+          </ul>
+
+          <div [ngbNavOutlet]="nav" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="d-flex justify-content-center my-4">
+          <button class="btn btn-outline-secondary" (click)="navigateBack()">
+            Volver
+          </button>
+          <button
+            class="btn btn-success ms-2"
+            (click)="editSupplier()"
+            *ngIf="!supplier.isDeleted"
+          >
+            Editar
+          </button>
+          <button
+            class="btn btn-success ms-2"
+            (click)="confirmRestore()"
+            data-bs-toggle="modal"
+            data-bs-target="#restoreModal"
+            *ngIf="supplier.isDeleted"
+          >
+            Restaurar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restore Modal -->
+  <div
+    class="modal fade"
+    id="restoreModal"
+    tabindex="-1"
+    aria-labelledby="restoreModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="restoreModalLabel">
+            Restaurar Proveedor
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="restoreMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-success"
+            data-bs-dismiss="modal"
+            (click)="restoreSupplier()"
+          >
+            Restaurar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

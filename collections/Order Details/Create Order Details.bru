@@ -1,0 +1,28 @@
+meta {
+  name: Create Order Details
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/order-details
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "order": {
+          "id": 1
+      },
+      "product": {
+          "id": 1
+      },
+      "quantity": 1,
+      "price": 99.99
+  }
+}

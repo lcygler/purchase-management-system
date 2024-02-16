@@ -1,0 +1,172 @@
+<div
+  class="container m-4 d-flex justify-content-center align-items-center"
+  style="width: 100vw; height: 60vh"
+>
+  <div class="row" style="width: 35%">
+    <div class="col-md">
+      <h2>Cambiar contraseña</h2>
+      <!-- Form -->
+      <div class="row" style="width: 100%">
+        <form #UserForm="ngForm" (ngSubmit)="onSubmit(UserForm)">
+          <div class="row my-3">
+            <fieldset>
+              <!-- Password 1 -->
+              <div class="col-md">
+                <div class="mb-3">
+                  <label for="new-password" class="form-label">
+                    Contraseña <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input
+                      type="{{ showNewPassword ? 'text' : 'password' }}"
+                      class="form-control"
+                      id="new-password"
+                      name="newPassword"
+                      [ngClass]="{
+                        'is-invalid': password1.touched && password1.errors,
+                        'is-valid': password1.touched && !password1.errors,
+                      }"
+                      [(ngModel)]="newPassword"
+                      #password1="ngModel"
+                      required
+                      minlength="8"
+                      maxlength="255"
+                    />
+                    <div class="input-group-append">
+                      <button
+                        type="button"
+                        class="input-group-text show-password-btn"
+                        style="text-decoration: none"
+                        (click)="toggleShowNewPassword()"
+                        [disabled]="!newPassword"
+                      >
+                        {{ showNewPassword ? "Ocultar" : "Mostrar" }}
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    *ngIf="password1.touched && password1.errors?.['required']"
+                    class="col-auto mt-1"
+                  >
+                    <span class="form-text text-danger"
+                      >Ingrese una contraseña</span
+                    >
+                  </div>
+                  <div
+                    *ngIf="password1.touched && password1.errors?.['minlength']"
+                    class="col-auto mt-1"
+                  >
+                    <span class="form-text text-danger"
+                      >La contraseña debe tener al menos 8 caracteres</span
+                    >
+                  </div>
+                  <div
+                    *ngIf="password1.touched && password1.errors?.['maxlength']"
+                    class="col-auto mt-1"
+                  >
+                    <span class="form-text text-danger"
+                      >La contraseña no debe superar los 255 caracteres</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Password 2 -->
+              <div class="col-md">
+                <div class="mb-3">
+                  <label for="confirm-password" class="form-label">
+                    Confirmar contraseña <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <input
+                      type="{{ showConfirmPassword ? 'text' : 'password' }}"
+                      class="form-control"
+                      id="confirm-password"
+                      name="confirmPassword"
+                      [ngClass]="{
+                        'is-invalid': password2.touched && password2.errors,
+                        'is-valid': password2.touched && !password2.errors,
+                      }"
+                      [(ngModel)]="confirmPassword"
+                      #password2="ngModel"
+                      required
+                      minlength="8"
+                      maxlength="255"
+                    />
+                    <div class="input-group-append">
+                      <button
+                        type="button"
+                        class="input-group-text show-password-btn"
+                        style="text-decoration: none"
+                        (click)="toggleShowConfirmPassword()"
+                        [disabled]="!confirmPassword"
+                      >
+                        {{ showConfirmPassword ? "Ocultar" : "Mostrar" }}
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    *ngIf="password2.touched && password2.errors?.['required']"
+                    class="col-auto mt-1"
+                  >
+                    <span class="form-text text-danger"
+                      >Ingrese una contraseña</span
+                    >
+                  </div>
+                  <div
+                    *ngIf="password2.touched && password2.errors?.['minlength']"
+                    class="col-auto mt-1"
+                  >
+                    <span class="form-text text-danger"
+                      >La contraseña debe tener al menos 8 caracteres</span
+                    >
+                  </div>
+                  <div
+                    *ngIf="password2.touched && password2.errors?.['maxlength']"
+                    class="col-auto mt-1"
+                  >
+                    <span class="form-text text-danger"
+                      >La contraseña no debe superar los 255 caracteres</span
+                    >
+                  </div>
+                  <div
+                    *ngIf="
+                      !password1.errors &&
+                      !password2.errors &&
+                      newPassword !== confirmPassword
+                    "
+                    class="col-auto mt-1"
+                  >
+                    <span class="form-text text-danger"
+                      >Las contraseñas no coinciden</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Acciones -->
+          <div class="row">
+            <div class="d-flex justify-content-center">
+              <button
+                type="button"
+                class="btn btn-outline-secondary"
+                (click)="navigateBack()"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="btn btn-success ms-2"
+                [disabled]="UserForm.invalid || newPassword !== confirmPassword"
+              >
+                Guardar
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

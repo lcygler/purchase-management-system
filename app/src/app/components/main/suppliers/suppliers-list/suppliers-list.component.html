@@ -1,0 +1,439 @@
+<div class="container m-4" style="width: 100vw">
+  <!-- Breadcrumbs -->
+  <div class="row">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/home">Inicio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Heading -->
+  <div class="row d-flex align-items-center mb-2">
+    <div class="col-9">
+      <h5 class="card-title py-2">Listado de Proveedores</h5>
+    </div>
+    <div class="col-3 d-flex justify-content-end">
+      <!-- Search -->
+      <div class="d-flex my-2 me-2" role="search">
+        <input
+          class="form-control"
+          type="text"
+          placeholder="Buscar"
+          aria-label="Buscar"
+          [(ngModel)]="searchTerm"
+          style="min-width: 200px"
+          (keyup)="filterSuppliers()"
+        />
+      </div>
+
+      <!-- Pagination -->
+      <div class="btn-group my-2 btn-actions">
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredSuppliers.length < 1 || currentPage === 1"
+          (click)="updatePage('first')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_double_arrow_left
+          </span>
+        </button>
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredSuppliers.length < 1 || currentPage === 1"
+          (click)="updatePage('prev')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_arrow_left
+          </span>
+        </button>
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredSuppliers.length < 1 || !hasMoreItems()"
+          (click)="updatePage('next')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_arrow_right
+          </span>
+        </button>
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="
+            filteredSuppliers.length < 1 || currentPage === totalPages
+          "
+          (click)="updatePage('last')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_double_arrow_right
+          </span>
+        </button>
+      </div>
+
+      <!-- Add Supplier -->
+      <button
+        class="btn btn-success m-2 d-flex justify-content-center align-items-center"
+        style="padding-left: 10px; padding-right: 15px"
+        (click)="addSupplier()"
+      >
+        <span class="material-icons" style="font-size: 16px; margin-right: 4px">
+          add
+        </span>
+        Nuevo
+      </button>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div
+    class="d-flex justify-content-center align-items-center"
+    style="height: 50vh"
+    *ngIf="isLoading"
+  >
+    <span class="loader"></span>
+  </div>
+
+  <!-- Supplier List -->
+  <div class="row overflow-x-auto" *ngIf="!isLoading">
+    <table
+      class="table table-bordered table-striped table-hover text-center text-nowrap align-middle"
+    >
+      <thead class="align-middle">
+        <tr>
+          <th>
+            <fa-icon [icon]="faImage"></fa-icon>
+          </th>
+          <th class="position-relative">
+            <div class="d-flex justify-content-center align-items-center">
+              Proveedor
+              <div class="position-absolute" style="right: 10px">
+                <button
+                  class="btn btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center custom-dark"
+                  style="width: 25px; height: 25px"
+                  (click)="updateSupplierSort()"
+                >
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="supplierSort === 'Default'"
+                  >
+                    sort
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="supplierSort === 'Ascending'"
+                  >
+                    keyboard_arrow_up
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="supplierSort === 'Descending'"
+                  >
+                    keyboard_arrow_down
+                  </span>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th class="position-relative">
+            <div class="d-flex justify-content-center align-items-center">
+              Ubicación
+              <div class="position-absolute" style="right: 10px">
+                <button
+                  class="btn btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center custom-dark"
+                  style="width: 25px; height: 25px"
+                  (click)="updateLocationSort()"
+                >
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="locationSort === 'Default'"
+                  >
+                    sort
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="locationSort === 'Ascending'"
+                  >
+                    keyboard_arrow_up
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="locationSort === 'Descending'"
+                  >
+                    keyboard_arrow_down
+                  </span>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th>Contacto</th>
+          <th>
+            <div class="d-flex justify-content-center align-items-center">
+              <span class="material-icons-outlined"> more_horiz </span>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="filteredSuppliers.length === 0">
+          <td colspan="5">
+            <div class="d-flex align-items-center justify-content-center">
+              <span
+                class="material-icons-outlined me-2"
+                style="font-size: 16px"
+              >
+                info
+              </span>
+              No se encontraron resultados
+            </div>
+          </td>
+        </tr>
+        <tr
+          *ngFor="
+            let supplier of supplierList
+              | deleteFilter : deleteFilter
+              | searchFilter : searchTerm
+              | supplierSort : supplierSort
+              | locationSort : locationSort
+              | slice : currentPage : itemsPerPage
+          "
+          [ngClass]="{ deleted: supplier.isDeleted }"
+        >
+          <!-- Supplier -->
+          <td class="px-4">
+            <img
+              src="{{ supplier.image.url }}"
+              class="img-fluid rounded"
+              alt="..."
+              style="object-fit: contain; width: 50px; height: 50px"
+              (error)="handleImageError($event)"
+            />
+          </td>
+          <td class="px-4">
+            {{ supplier.businessName }}<br />
+            <small class="text-body-secondary" style="font-size: 13px">
+              {{ "Código: " + supplier.code }}
+            </small>
+          </td>
+          <td
+            class="px-4"
+            style="
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              max-width: 200px;
+            "
+          >
+            {{
+              supplier.address.state.name +
+                ", " +
+                supplier.address.state.country.name
+            }}
+          </td>
+          <td class="px-4 position-relative">
+            <div class="d-flex justify-content-center align-items-center">
+              <div class="">
+                {{
+                  supplier.contactDetails.firstName +
+                    " " +
+                    supplier.contactDetails.lastName
+                }}
+              </div>
+              <div class="position-absolute" style="right: 20px">
+                <ng-template #list>
+                  <div class="d-flex flex-column">
+                    <span>{{ supplier.website }}</span>
+                    <span>{{ supplier.email }}</span>
+                    <span>{{ supplier.phone }}</span>
+                  </div>
+                </ng-template>
+
+                <button
+                  class="btn btn-outline-secondary btn-sm rounded-circle d-flex justify-content-center align-items-center custom-dark"
+                  style="width: 20px; height: 20px"
+                  placement="top"
+                  container="body"
+                  [ngbTooltip]="list"
+                  tooltipClass="custom-tooltip"
+                >
+                  <fa-icon [icon]="faInfo" style="font-size: 8px"></fa-icon>
+                </button>
+              </div>
+            </div>
+          </td>
+          <td class="px-4">
+            <!-- Actions -->
+            <div class="btn-group btn-actions">
+              <button
+                class="btn btn-outline-primary"
+                (click)="openSupplier(supplier.id)"
+              >
+                <span class="material-icons" style="font-size: 16px"
+                  >remove_red_eye</span
+                >
+              </button>
+              <button
+                class="btn btn-outline-secondary custom-dark"
+                (click)="editSupplier(supplier.id)"
+                *ngIf="!supplier.isDeleted"
+              >
+                <span class="material-icons" style="font-size: 16px">edit</span>
+              </button>
+              <button
+                class="btn btn-outline-danger"
+                (click)="
+                  confirmDelete(
+                    supplier.id,
+                    supplier.code,
+                    supplier.businessName
+                  )
+                "
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                *ngIf="!supplier.isDeleted"
+              >
+                <span class="material-icons" style="font-size: 16px">
+                  delete
+                </span>
+              </button>
+              <button
+                class="btn btn-outline-success"
+                (click)="
+                  confirmRestore(
+                    supplier.id,
+                    supplier.code,
+                    supplier.businessName
+                  )
+                "
+                data-bs-toggle="modal"
+                data-bs-target="#restoreModal"
+                *ngIf="supplier.isDeleted"
+              >
+                <span class="material-icons" style="font-size: 16px">undo</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot *ngIf="filteredSuppliers.length > 0">
+        <tr class="no-border">
+          <td colspan="12" class="text-muted text-center small no-border">
+            <div class="d-flex justify-content-center position-relative">
+              <div>{{ calculateRange() }}</div>
+
+              <!-- Checkbox -->
+              <div
+                class="form-check position-absolute"
+                style="right: 10px"
+                [ngClass]="!hasDeletedSuppliers() ? 'd-none' : 'd-inline'"
+              >
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value=""
+                  id="flexCheckDefault"
+                  [(ngModel)]="deleteFilter"
+                  (change)="onCheckboxChange($event)"
+                />
+                <label class="form-check-label" for="flexCheckDefault">
+                  Ver proveedores eliminados
+                </label>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Delete Modal -->
+  <div
+    class="modal fade"
+    id="deleteModal"
+    tabindex="-1"
+    aria-labelledby="deleteModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteModalLabel">
+            Eliminar Proveedor
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="deleteMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-bs-dismiss="modal"
+            (click)="deleteSupplier()"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restore Modal -->
+  <div
+    class="modal fade"
+    id="restoreModal"
+    tabindex="-1"
+    aria-labelledby="restoreModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="restoreModalLabel">
+            Restaurar Proveedor
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="restoreMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-success"
+            data-bs-dismiss="modal"
+            (click)="restoreSupplier()"
+          >
+            Restaurar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

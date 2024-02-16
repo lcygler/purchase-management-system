@@ -1,0 +1,21 @@
+meta {
+  name: Patch Order
+  type: http
+  seq: 7
+}
+
+patch {
+  url: http://localhost:8080/orders/1
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "number": "OC-20230601-1"
+  }
+}

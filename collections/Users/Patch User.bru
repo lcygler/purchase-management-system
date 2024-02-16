@@ -1,0 +1,17 @@
+meta {
+  name: Patch User
+  type: http
+  seq: 3
+}
+
+patch {
+  url: http://localhost:8080/users/1
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "firstName": ""
+  }
+}

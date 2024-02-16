@@ -1,0 +1,420 @@
+<div class="container m-4" style="width: 100vw">
+  <!-- Breadcrumbs -->
+  <div class="row">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/home">Inicio</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Productos</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Heading -->
+  <div class="row d-flex align-items-center mb-2">
+    <div class="col-9">
+      <h5 class="card-title py-2">Listado de Productos</h5>
+    </div>
+    <div class="col-3 d-flex justify-content-end">
+      <!-- Search -->
+      <div class="d-flex my-2 me-2" role="search">
+        <input
+          class="form-control"
+          type="text"
+          placeholder="Buscar"
+          aria-label="Buscar"
+          [(ngModel)]="searchTerm"
+          style="min-width: 200px"
+          (keyup)="filterProducts()"
+        />
+      </div>
+
+      <!-- Filter -->
+      <div class="dropdown my-2 me-2">
+        <button
+          class="btn btn-outline-secondary dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          {{ categoryFilter }}
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a
+              class="dropdown-item custom-item"
+              (click)="updateCategoryFilter('Categoría')"
+            >
+              <strong>Todos</strong>
+            </a>
+          </li>
+          <li>
+            <a
+              *ngFor="let category of categoryList"
+              class="dropdown-item custom-item"
+              (click)="updateCategoryFilter(category.name)"
+            >
+              {{ category.name }}
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Pagination -->
+      <div class="btn-group my-2 btn-actions">
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredProducts.length < 1 || currentPage === 1"
+          (click)="updatePage('first')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_double_arrow_left
+          </span>
+        </button>
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredProducts.length < 1 || currentPage === 1"
+          (click)="updatePage('prev')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_arrow_left
+          </span>
+        </button>
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredProducts.length < 1 || !hasMoreItems()"
+          (click)="updatePage('next')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_arrow_right
+          </span>
+        </button>
+        <button
+          class="btn btn-outline-secondary d-flex align-items-center"
+          [disabled]="filteredProducts.length < 1 || currentPage === totalPages"
+          (click)="updatePage('last')"
+        >
+          <span class="material-icons" style="font-size: 16px">
+            keyboard_double_arrow_right
+          </span>
+        </button>
+      </div>
+
+      <!-- Add Product -->
+      <button
+        class="btn btn-success m-2 d-flex justify-content-center align-items-center"
+        style="padding-left: 10px; padding-right: 15px"
+        (click)="addProduct()"
+      >
+        <span class="material-icons" style="font-size: 16px; margin-right: 4px"
+          >add</span
+        >
+        Nuevo
+      </button>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div
+    class="d-flex justify-content-center align-items-center"
+    style="height: 50vh"
+    *ngIf="isLoading"
+  >
+    <span class="loader"></span>
+  </div>
+
+  <!-- Product List -->
+  <div class="row overflow-x-auto" *ngIf="!isLoading">
+    <table
+      class="table table-bordered table-striped table-hover text-center text-nowrap align-middle"
+    >
+      <thead class="align-middle">
+        <tr>
+          <th>
+            <fa-icon [icon]="faImage"></fa-icon>
+          </th>
+          <th class="position-relative">
+            <div class="d-flex justify-content-center align-items-center">
+              Producto
+              <div class="position-absolute" style="right: 10px">
+                <button
+                  class="btn btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center custom-dark"
+                  style="width: 25px; height: 25px"
+                  (click)="updateNameSort()"
+                >
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="nameSort === 'Default'"
+                  >
+                    sort
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="nameSort === 'Ascending'"
+                  >
+                    keyboard_arrow_up
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="nameSort === 'Descending'"
+                  >
+                    keyboard_arrow_down
+                  </span>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th>Categoría</th>
+          <th>Proveedor</th>
+          <th class="position-relative">
+            <div class="d-flex justify-content-center align-items-center">
+              Precio
+              <div class="position-absolute" style="right: 10px">
+                <button
+                  class="btn btn-outline-secondary rounded-circle d-flex justify-content-center align-items-center custom-dark"
+                  style="width: 25px; height: 25px"
+                  (click)="updatePriceSort()"
+                >
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="priceSort === 'Default'"
+                  >
+                    sort
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="priceSort === 'Ascending'"
+                  >
+                    keyboard_arrow_up
+                  </span>
+                  <span
+                    class="material-icons"
+                    style="font-size: 16px"
+                    *ngIf="priceSort === 'Descending'"
+                  >
+                    keyboard_arrow_down
+                  </span>
+                </button>
+              </div>
+            </div>
+          </th>
+          <th>
+            <div class="d-flex justify-content-center align-items-center">
+              <span class="material-icons-outlined"> more_horiz </span>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="filteredProducts.length === 0">
+          <td colspan="6">
+            <div class="d-flex align-items-center justify-content-center">
+              <span
+                class="material-icons-outlined me-2"
+                style="font-size: 16px"
+              >
+                info
+              </span>
+              No se encontraron resultados
+            </div>
+          </td>
+        </tr>
+        <tr
+          *ngFor="
+            let product of productList
+              | deleteFilter : deleteFilter
+              | categoryFilter : categoryFilter
+              | searchFilter : searchTerm
+              | nameSort : nameSort
+              | priceSort : priceSort
+              | slice : currentPage : itemsPerPage
+          "
+          [ngClass]="{ deleted: product.isDeleted }"
+        >
+          <!-- Product -->
+          <td class="px-4">
+            <img
+              src="{{ product.image.url }}"
+              class="img-fluid rounded"
+              alt="..."
+              style="object-fit: contain; width: 50px; height: 50px"
+              (error)="handleImageError($event)"
+            />
+          </td>
+          <td class="px-4">
+            {{ product.name }}<br />
+            <small class="text-body-secondary" style="font-size: 13px">
+              {{ "SKU: " + product.sku }}
+            </small>
+          </td>
+          <td class="px-4">{{ product.category.name }}</td>
+          <td class="px-4">{{ product.supplier.businessName }}</td>
+          <td class="px-4">{{ product.price | currency }}</td>
+          <td class="px-4">
+            <!-- Actions -->
+            <div class="btn-group btn-actions">
+              <button
+                class="btn btn-outline-primary"
+                (click)="openProduct(product.id)"
+              >
+                <span class="material-icons" style="font-size: 16px"
+                  >remove_red_eye</span
+                >
+              </button>
+              <button
+                class="btn btn-outline-secondary custom-dark"
+                (click)="editProduct(product.id)"
+                *ngIf="!product.isDeleted"
+              >
+                <span class="material-icons" style="font-size: 16px">edit</span>
+              </button>
+              <button
+                class="btn btn-outline-danger"
+                (click)="confirmDelete(product.id, product.sku, product.name)"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                *ngIf="!product.isDeleted"
+              >
+                <span class="material-icons" style="font-size: 16px">
+                  delete
+                </span>
+              </button>
+              <button
+                class="btn btn-outline-success"
+                (click)="confirmRestore(product.id, product.sku, product.name)"
+                data-bs-toggle="modal"
+                data-bs-target="#restoreModal"
+                *ngIf="product.isDeleted"
+              >
+                <span class="material-icons" style="font-size: 16px">undo</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot *ngIf="filteredProducts.length > 0">
+        <tr style="border: none">
+          <td
+            colspan="12"
+            class="text-muted text-center small"
+            style="border: none"
+          >
+            <div class="d-flex justify-content-center position-relative">
+              <div>{{ calculateRange() }}</div>
+
+              <!-- Checkbox -->
+              <div
+                class="form-check position-absolute"
+                style="right: 10px"
+                [ngClass]="!hasDeletedProducts() ? 'd-none' : 'd-inline'"
+              >
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  value=""
+                  id="flexCheckDefault"
+                  [(ngModel)]="deleteFilter"
+                  (change)="onCheckboxChange($event)"
+                />
+                <label class="form-check-label" for="flexCheckDefault">
+                  Ver productos eliminados
+                </label>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Delete Modal -->
+  <div
+    class="modal fade"
+    id="deleteModal"
+    tabindex="-1"
+    aria-labelledby="deleteModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="deleteModalLabel">
+            Eliminar Producto
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="deleteMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-danger"
+            data-bs-dismiss="modal"
+            (click)="deleteProduct()"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Restore Modal -->
+  <div
+    class="modal fade"
+    id="restoreModal"
+    tabindex="-1"
+    aria-labelledby="restoreModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="restoreModalLabel">
+            Restaurar Producto
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="restoreMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-success"
+            data-bs-dismiss="modal"
+            (click)="restoreProduct()"
+          >
+            Restaurar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

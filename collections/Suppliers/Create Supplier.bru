@@ -1,0 +1,36 @@
+meta {
+  name: Create Supplier
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:8080/suppliers
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "code": "PROV-01",
+    "businessName": "Empresa ABC",
+    "industry": {
+      "id": 1
+    },
+    "website": "http://www.empresaabc.com",
+    "email": "info@abccorp.com",
+    "phone": "+123456789",
+    "image": {
+      "id": 1
+    },
+    "address": {
+      "id": 1
+    },
+    "taxInformation": {
+      "id": 1
+    },
+    "contactDetails": {
+      "id": 1
+    }
+  }
+}

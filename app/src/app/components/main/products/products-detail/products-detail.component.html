@@ -1,0 +1,151 @@
+<div class="container mt-4">
+  <div class="row">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/home">Inicio</a></li>
+        <li class="breadcrumb-item">
+          <a routerLink="/products">Productos</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ product.name }}
+        </li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="container mt-4 d-flex justify-content-center align-items-center">
+    <div class="row">
+      <div
+        class="col-md-6 d-flex justify-content-end"
+        style="padding-right: 100px"
+      >
+        <img
+          src="{{ product.image?.url }}"
+          class="img-fluid rounded"
+          alt="..."
+          style="object-fit: contain; width: 400px; height: 400px"
+          (error)="handleImageError($event)"
+        />
+      </div>
+
+      <div class="col-md-6">
+        <div class="mt-4">
+          <!-- Badges -->
+          <div class="d-flex">
+            <div>
+              <p
+                class="badge me-2 p-2"
+                style="font-size: 12px"
+                [ngClass]="
+                  product.isDeleted ? 'text-bg-danger' : 'text-bg-success '
+                "
+              >
+                {{ product.isDeleted ? "Inactivo" : "Activo" }}
+              </p>
+            </div>
+
+            <div>
+              <p
+                class="badge p-2"
+                style="font-size: 12px; background-color: #393e46"
+              >
+                {{ product.category.name }}
+              </p>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h2>{{ product.name }}</h2>
+          </div>
+
+          <div class="mb-3" style="width: 80%">
+            <p>{{ product.description }}</p>
+          </div>
+
+          <div class="mb-3">
+            <small><strong>Código SKU:</strong> {{ product.sku }}</small>
+          </div>
+
+          <div class="mb-3">
+            <small>
+              <strong>Proveedor:</strong> {{ product.supplier.businessName }}
+            </small>
+          </div>
+
+          <div>
+            <p class="h3">
+              {{ product.price | currency }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="d-flex justify-content-center my-4">
+      <button class="btn btn-outline-secondary" (click)="navigateBack()">
+        Volver
+      </button>
+      <button
+        class="btn btn-success ms-2"
+        (click)="editProduct()"
+        *ngIf="!product.isDeleted"
+      >
+        Editar
+      </button>
+      <button
+        class="btn btn-success ms-2"
+        (click)="confirmRestore()"
+        data-bs-toggle="modal"
+        data-bs-target="#restoreModal"
+        *ngIf="product.isDeleted"
+      >
+        Restaurar
+      </button>
+    </div>
+  </div>
+
+  <!-- Restore Modal -->
+  <div
+    class="modal fade"
+    id="restoreModal"
+    tabindex="-1"
+    aria-labelledby="restoreModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="restoreModalLabel">
+            Restaurar Producto
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body" [innerHTML]="restoreMessage"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-success"
+            data-bs-dismiss="modal"
+            (click)="restoreProduct()"
+          >
+            Restaurar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

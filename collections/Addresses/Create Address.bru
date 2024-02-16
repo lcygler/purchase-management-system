@@ -1,0 +1,26 @@
+meta {
+  name: Create Address
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:8080/addresses
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "street": "Calle Lavalle",
+      "number": "789",
+      "postalCode": "4601",
+      "city": "San Salvador de Jujuy",
+      "state": {
+          "id": 180,
+          "country": {
+              "id": 11
+          }
+      }
+  }
+}

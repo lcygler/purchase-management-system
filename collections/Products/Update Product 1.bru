@@ -1,0 +1,36 @@
+meta {
+  name: Update Product 1
+  type: http
+  seq: 7
+}
+
+put {
+  url: http://localhost:8080/products/21
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+      "id": 1,
+      "sku": "JTF9KSY4",
+      "name": "Teléfono Inteligente (Modificado)",
+      "description": "Teléfono inteligente de última generación",
+      "price": 159999.99,
+      "image": {
+          "id": 11
+      },
+      "category": {
+          "id": 1
+      },
+      "supplier": {
+          "id": 1
+      },
+      "isDeleted": false,
+      "createdAt": "2024-02-10T16:00:50.843"
+  }
+}
